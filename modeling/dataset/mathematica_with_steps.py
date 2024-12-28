@@ -39,7 +39,8 @@ class MathematicaWithStepsMathDataset(BaseMathDataset):
         samples_raw = []
         for fname in tqdm(all_filenames):
             fname = fname.rstrip()
-            fname = os.path.join(os.path.dirname(os.path.dirname(self.dataroot)), fname[2:])
+            fname = os.path.join(os.path.dirname(self.dataroot), fname[2:])  # Changed Here
+            # fname = os.path.join(os.path.dirname(os.path.dirname(self.dataroot)), fname[2:])
             with open(fname, 'r') as fp:
                 question = ""
                 answers  = []

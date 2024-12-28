@@ -36,6 +36,7 @@ def run_training(args, train_data):
         if not args.tpu_num_cores:
             save_steps = len(train_data) 
             save_steps = int(save_steps / torch.cuda.device_count())
+            # save_steps = int(save_steps / max(torch.cuda.device_count(), 1))
             save_steps = int(save_steps / args.grad_acc_steps)
             save_steps = int(save_steps / args.batch_size_per_replica)
         else:
@@ -104,7 +105,7 @@ def run_training(args, train_data):
         train_dataset=train_data,
     )
     trainer.remove_callback(transformers.integrations.TensorBoardCallback)
-    trainer.add_callback(CustomTensorBoardCallback())
+    # trainer.add_callback(CustomTensorBoardCallback())
 
     print(f"STARTING TRAINING. save_steps={save_steps}")
     trainer.train()
@@ -204,6 +205,7 @@ def get_dataset(args):
     train_data = []
 
     if args.mathematica_dataroot:
+        print("Mathematica dataroots: ", args.mathematica_dataroot)
         for mathematica_dr in args.mathematica_dataroot:
             len_multiplier, dirname = mathematica_dr.split("@")
             len_multiplier = float(len_multiplier)
@@ -236,6 +238,7 @@ def get_dataset(args):
                 ))
 
     if args.khan_dataroot:
+        print('Khan Dataroot: ', args.khan_dataroot)
         len_multiplier, dirname = args.khan_dataroot.split("@")
         len_multiplier = float(len_multiplier)
         train_data.append(KhanAcademyMathDataset(
@@ -249,6 +252,7 @@ def get_dataset(args):
         ))
     
     if args.MATH_dataroot:
+        print('MATH Dataroot: ', args.MATH_dataroot)
         train_data.append(MATHDataset(
             dataroot=args.MATH_dataroot,
             tokenizer=tokenizer,
@@ -274,7 +278,11 @@ def main():
     ######### Arg parsing ###############################################################
 
     parser = argparse.ArgumentParser(description="Language Modelling on Code")
-    parser.add_argument('--arch', default='gpt2', choices=transformers.GPT2_PRETRAINED_MODEL_ARCHIVE_LIST)
+    # TODO: Checkout It is not Working
+    # parser.add_argument('--arch', default='gpt2', choices=transformers.GPT2_PRETRAINED_MODEL_ARCHIVE_LIST)  
+    parser.add_argument('--arch', default='gpt2-xl', choices=['gpt2', 'gpt2-medium', 'gpt2-large', 'gpt2-xl']) 
+    # available_models = transformers.GPT2Config.pretrained_config_archive_map.keys()
+    # print(list(available_models))
     parser.add_argument('--tokenizer-merges-file', default=None, type=str)
     parser.add_argument('--load', default=None, type=str)
 
@@ -296,7 +304,8 @@ def main():
     parser.add_argument('--epochs', default=1, type=int)
     parser.add_argument('--lr', default=5e-5, type=float)
     parser.add_argument('--weight-decay', default=0.05, type=float)
-    parser.add_argument('--lr-warmup-steps', default=-1, type=int)
+    parser.add_argument('--lr-warmup-steps', default=500, type=int)  # Changed Here
+    # parser.add_argument('--lr-warmup-steps', default=-1, type=int)
     parser.add_argument('--batch-size-per-replica', default=8, type=int)
     parser.add_argument('--grad-acc-steps', default=4, type=int)
     parser.add_argument('--local_rank', default=-1, type=int)
@@ -308,7 +317,7 @@ def main():
     parser.add_argument('--log-freq', default=5, type=int)
 
     args = parser.parse_args()
-    args.save_dir = os.path.join(args.save_dir, datetime.now().strftime("%m-%d-%Y__%H:%M:%S"))
+    # args.save_dir = os.path.join(args.save_dir, datetime.now().strftime("%m-%d-%Y__%H:%M:%S"))
 
     ######### Start training ###############################################################
 

@@ -9,8 +9,9 @@ import json
 import glob
 import logging
 import random
-import io
+import os
 from tqdm import tqdm
+from itertools import islice
 
 from dataset.util import last_boxed_only, _clean_numbers, last_boxed_only_string
 
@@ -30,8 +31,9 @@ class KhanAcademyMathDataset(BaseMathDataset):
         """
         Set up self.samples by loading from the dataroot
         """
-
-        all_filenames = glob.glob(self.dataroot)
+        
+        all_filenames = list(islice(glob.glob(os.path.join(self.dataroot, "**", "*.json"), recursive=True), 10)) # Changed Here
+        # all_filenames = glob.glob(self.dataroot)
         print(f"{self.__class__.__name__}: Loading samples from {len(all_filenames)} files.")
         samples_raw = []
         for fname in tqdm(all_filenames):

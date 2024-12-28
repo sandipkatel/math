@@ -8,9 +8,10 @@ import torch.nn.functional as F
 import json
 import glob
 import logging
-import io
+import os
 import random
 import numpy as np
+from itertools import islice
 
 from dataset.util import last_boxed_only, _clean_numbers, last_boxed_only_string, only_until_first_boxed_from_tokens
 
@@ -31,7 +32,8 @@ class MATHDataset(BaseMathDataset):
         Set up self.samples by loading from the dataroot
         """
 
-        all_filenames = glob.glob(self.dataroot)
+        all_filenames = list(islice(glob.glob(os.path.join(self.dataroot, "**", "*.json"), recursive=True), 10)) # Changed Here
+        # all_filenames = glob.glob(self.dataroot)
         samples_raw = []
         for fname in all_filenames:
             with open(fname, 'r') as fp:

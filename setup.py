@@ -12,3 +12,5 @@ setuptools.setup(
     package_dir = {"": "modeling"},
     py_modules = ["math_equivalence"],
 )
+
+# Run: python tune_gpt.py --mathematica-dataroot "1.0@C:/Users/Acer/Downloads/amps/amps/mathematica/" --khan-dataroot "1.0@C:/Users/Acer/Downloads/amps/amps/khan/" --MATH-dataroot "C:/Users/Acer/Downloads/MATH/" --tpu_num_cores 8
